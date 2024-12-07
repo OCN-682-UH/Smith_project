@@ -1,0 +1,134 @@
+---
+title: "Final Project"
+author: "Megan Smith"
+date: "2024-12-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.path = "../output/")
+```
+
+ Load Libraries 
+```{r, echo=FALSE}
+library(tidyverse)
+library(here)
+library(lubridate)
+library(ggpattern)
+```
+
+# Read in data 
+```{r, results="hide"}
+ctd<- read_csv(here("data","ctdspatialclean.csv"))
+chl<- read_csv(here("data","chlspatialclean.csv"))
+intchl<- read_csv(here("data","intchlspatialclean.csv"))
+```
+
+```{r}
+glimpse(ctd)
+glimpse(chl)
+glimpse(intchl)
+```
+
+
+```{r}
+spatial_order<- c("PWS", "inner", "middle", "outer", "slope")
+ctd$spatial <- factor(ctd$spatial, levels = spatial_order)
+custom_colors <- c(
+  "2015" = "#e6194b",
+  "2016" = "#3cb44b",
+  "2017" = "#4363d8",
+  "2018" = "#f58231",
+  "2019" = "#42d4f4",
+  "2020" = "#f032e6",
+  "2021" = "#555555",
+  "2022"="brown")
+spat_colors<-c(
+  "PWS"= "#8E0F28",
+  "inner"="#87BFCC",
+  "middle"= "#3A8299",
+  "outer"="#1E3F66",
+  "slope"="darkgrey"
+  
+)
+```
+
+
+
+```{r}
+ggplot(ctd, aes(x = spatial, y = temp, fill = factor(year), group = interaction(spatial, year))) +
+  geom_boxplot(
+    linewidth = 0.4, 
+    fatten = 1.5, 
+    outlier.size = 0.25
+  ) +
+  scale_fill_manual(values = custom_colors) +
+  labs(
+    title = "2015-2022 Temp (°C) by Spatial Distribution",
+    x = "Spatial Zone",
+    y = "Temperature (°C)",
+    fill = "Year"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black"),
+    axis.text.x = element_text(angle = 80, hjust = 1),
+    legend.position = "top"
+  ) +
+  guides(
+    fill = guide_legend(
+      nrow = 1,
+      title = "Year",
+      override.aes = list(
+        linetype = 0,
+        linewidth = 0,
+        shape = 22,
+        size = 5
+      )
+    )
+  )
+
+
+```
+
+
+```{r}
+ggplot(ctd, aes(x = factor(year), y = temp, fill = spatial, group = interaction(spatial, year))) +
+  geom_boxplot(
+    linewidth = 0.4, 
+    fatten = 1.5, 
+    outlier.size = 0.25
+  ) +
+  scale_fill_manual(values = spat_colors) +  # Apply custom colors for spatial zones
+  labs(
+    title = "2015-2022 Temp (°C) by Spatial Distribution",
+    x = "Year",
+    y = "Temperature (°C)",
+    fill = "Spatial Zone"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black"),
+    axis.text.x = element_text(angle = 80, hjust = 1),
+    legend.position = "top"
+  ) +
+  guides(
+    fill = guide_legend(
+      nrow = 1,
+      title = "Spatial Zone",
+      override.aes = list(
+        linetype = 0,
+        linewidth = 0,
+        shape = 22,
+        size = 5
+      )
+    )
+  )
+
+```
+
+
+
