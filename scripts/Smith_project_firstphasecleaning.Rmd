@@ -1,0 +1,116 @@
+---
+title: "Final Project: Phase one cleaning"
+author: "Megan Smith"
+date: "2024-12-07"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.path = "../output/")
+```
+
+This is the first level of cleaning the data in order to make it into a shiny app. 
+
+ Accompanying data dictionary will have all information and links to original data sets. 
+
+
+# Loading in libraries 
+```{r}
+library(tidyverse)
+library(here)
+```
+
+# Reading in data
+```{r}
+ctd<- read_csv(here("data","CTDfullcleanshareable.csv" ))
+chl<- read_csv(here("data", "CHLfullcleanshareable.csv"))
+intchl<- read_csv(here("data","CHLallIntegratedWide.csv"))
+```
+
+```{r echo= TRUE, results="hide"}
+summary(ctd)
+summary(chl)
+summary(intchl)
+```
+Getting unique station names and ensuring they are the same throughout 
+```{r, echo= TRUE, results= "hide"}
+unique(ctd$station)
+unique(chl$station)
+unique(intchl$station)
+```
+# Begining to clean 
+```{r}
+stations <- c("GAK01", "PWS2", "GAK04", "GAK05", "GAK09","GAK13","GAK14","GAK15") # these are the only stations I want to keep
+ctdpro <- ctd %>% 
+  filter(station %in% stations) # filtering above stations
+```
+# Checking which stations are in each year
+```{r, echo= TRUE, results= 'hide'}
+stations_year <- ctdpro %>% 
+  group_by(year) %>% 
+  summarise(statyear = list(unique(station))) # making a list of the stations for each year
+```
+# Adding a spatial identifier: PWS, inner shelf, middle shelf, outer shelf, and slope
+```{r}
+ctdprospat <- ctdpro %>% 
+  mutate(spatial = case_when( #adding a column to give each station a spatial identifier
+    station == "PWS2" ~ "PWS",
+    station == "GAK01" ~ "inner",
+    station %in% c("GAK04", "GAK05") ~ "middle",
+    station == "GAK09" ~ "outer",
+    station %in% c("GAK13", "GAK14", "GAK15") ~ "slope", 
+    TRUE ~ NA_character_  
+  ))
+```
+
+# Selecting out the columns needed and saving data 
+```{r}
+ctdproclean<-ctdprospat %>% 
+  select(stat_name, station, year, depth, temp, sal, dens, spatial) %>% 
+  write_csv(here("data","ctdspatialclean.csv"))
+```
+
+# Repeating above for chl data 
+```{r}
+chlpro <- chl %>% 
+  filter(station %in% stations)
+
+chlprospat <- chlpro %>% 
+  mutate(spatial = case_when(
+    station == "PWS2" ~ "PWS",
+    station == "GAK01" ~ "inner",
+    station %in% c("GAK04", "GAK05") ~ "middle",
+    station == "GAK09" ~ "outer",
+    station %in% c("GAK13", "GAK14", "GAK15") ~ "slope",
+    TRUE ~ NA_character_  
+  ))
+chlproclean<-chlprospat %>% # different columns within this data set
+  select(stat_name, station, year, depth, chlsml, chllrg, chltot,spatial) %>% 
+  write_csv(here("data","chlspatialclean.csv"))
+```
+
+# Repeating above for integrated chl data (note the integration was done previously using the above chl data)
+```{r}
+intchlpro <- intchl %>% 
+  filter(station %in% stations)
+
+intchlprospat <- intchlpro %>% 
+  mutate(spatial = case_when(
+    station == "PWS2" ~ "PWS",
+    station == "GAK01" ~ "inner",
+    station %in% c("GAK04", "GAK05") ~ "middle",
+    station == "GAK09" ~ "outer",
+    station %in% c("GAK13", "GAK14", "GAK15") ~ "slope",
+    TRUE ~ NA_character_  
+  ))
+intchlproclean<-intchlprospat %>% 
+  select(stat_name, station, year, chlsml_int, chllrg_int, chl_int_total,spatial) %>% # slightly different column names, but all three data sets are generally the same 
+  write_csv(here("data","intchlspatialclean.csv"))
+```
+
