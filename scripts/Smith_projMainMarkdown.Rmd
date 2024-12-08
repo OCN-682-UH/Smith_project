@@ -1,5 +1,5 @@
 ---
-title: "Final Project"
+title: "Exploring Environmental Parameters in The Northern Gulf of Alaska"
 author: "Megan Smith"
 date: "2024-12-07"
 output: html_document
@@ -17,36 +17,39 @@ knitr::opts_chunk$set(echo = TRUE,
 library(tidyverse)
 library(here)
 library(lubridate)
-library(ggpattern)
+library(ggmap)
+
 ```
 
-# Read in data 
-```{r, results="hide"}
+Read in data 
+```{r, echo= FALSE,results="hide"}
+stat_cords<-read_csv(here("data", "Sample_coordinates.csv"))
 ctd<- read_csv(here("data","ctdspatialclean.csv"))
 chl<- read_csv(here("data","chlspatialclean.csv"))
 intchl<- read_csv(here("data","intchlspatialclean.csv"))
 ```
-
-```{r}
+Exploring the data 
+```{r, echo= FALSE, results='hide'}
 glimpse(ctd)
 glimpse(chl)
 glimpse(intchl)
+glimpse(stat_cords)
 ```
 
 
-```{r}
-spatial_order<- c("PWS", "inner", "middle", "outer", "slope")
+```{r, echo= FALSE, results="hide"}
+spatial_order<- c("PWS", "inner", "middle", "outer", "slope") # order I want the spatial zones in 
 ctd$spatial <- factor(ctd$spatial, levels = spatial_order)
-custom_colors <- c(
-  "2015" = "#e6194b",
-  "2016" = "#3cb44b",
-  "2017" = "#4363d8",
-  "2018" = "#f58231",
-  "2019" = "#42d4f4",
-  "2020" = "#f032e6",
-  "2021" = "#555555",
-  "2022"="brown")
-spat_colors<-c(
+custom_colors <- c( # colors for each year 
+  "2015" = "#C27A89",
+  "2016" = "darkseagreen",
+  "2017" = "#C6B9E5",
+  "2018" = "aquamarine3",
+  "2019" = "coral3",
+  "2020" = "burlywood3",
+  "2021" = "darkkhaki",
+  "2022"="darkslategrey")
+spat_colors<-c( # custom colors for spatial zone 
   "PWS"= "#8E0F28",
   "inner"="#87BFCC",
   "middle"= "#3A8299",
@@ -57,36 +60,108 @@ spat_colors<-c(
 ```
 
 
+# The Northern Gulf of Alaska Spring Bloom 
 
-```{r}
-ggplot(ctd, aes(x = spatial, y = temp, fill = factor(year), group = interaction(spatial, year))) +
-  geom_boxplot(
-    linewidth = 0.4, 
-    fatten = 1.5, 
-    outlier.size = 0.25
-  ) +
-  scale_fill_manual(values = custom_colors) +
+- Spring Bloom: highest productivity
+- Time: April-May
+- Spatial Variation: Inner shelf zones have higher productivity and are influenced by fresh water discharge (snow melt), and wind mixing. The outer shelf and slope are relatively stable and have the lowest amounts of production
+- Interannual Variation: 2015-2016 and 2019 were marine heat waves which are seen in temperature figures below
+- Sampling: Each station is only sampled one time during the spring bloom, so this is a small snapshot of what is happening during the bloom
+
+# Map of The Northern Gulf of Alaska Shelf
+
+```{r, echo= FALSE}
+stat_cords_clean <- stat_cords %>%
+  mutate(long = as.numeric(long), lat = as.numeric(lat)) %>% # making sure lat and long are numeric
+  filter(!is.na(long) & !is.na(lat)) # filtering out NAs
+
+
+site <- data.frame(
+  lon = -148.195623,  # approx long for the middle of the NGA
+  lat = 59.194642     # approx long for the middle of the NGA
+)
+
+NGA <- get_map( # pulling the map of the area
+  location = site, 
+  zoom = 7,         # adjusted zoom level to show more of the Gulf
+  maptype = "satellite"  # selecting satellite as the view
+)
+ggmap(NGA) + # creating the map 
+  geom_point(data = stat_cords_clean, aes(x = long, y = lat, color = location), size = 4) + # selecting the data and making the points size 4
+  labs(title="Spatial Distibution of The Northern Gulf of Alaska Shelf", # adding titles for labels
+       x="Longitude", y="Latitude", 
+       color= "Zone Classification") +
+  scale_color_manual(values = spat_colors) + # using custom colors
+  theme_minimal() + # selecting minimal theme
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14), #plot title size
+    legend.position = "right", # putting legend on right
+    plot.background = element_rect(fill = "#F2EDE6", color = NA),  # background of entire plot
+    panel.background = element_rect(fill = "#F2EDE6", color = NA)  # background of the map area
+  )
+```
+
+---
+
+# Depth Profile of Spatial Zones
+
+```{r, echo=FALSE}
+stat_cords$location <- factor(stat_cords$location, levels = c("PWS", "inner", "middle", "outer", "slope"))
+
+ggplot(stat_cords, aes(x = location, y = depth, group = 1, color = location)) + # plotting depth profile
+  geom_line(linewidth = 1) +  # size of connecting lines 
+  geom_point(size = 3) +  # point size
+  scale_y_reverse(
+    breaks = seq(0, max(stat_cords$depth), by = 250)  # y axis breaks every 250
+  ) +  
+  scale_color_manual(values = spat_colors) +  # custom spatial colors
   labs(
-    title = "2015-2022 Temp (°C) by Spatial Distribution",
+    x = "Spatial Zone", # renaming labels
+    y = "Depth (m)",
+    title = "Station Depths by Spatial Zone"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "darkgrey"), # axis colors
+    axis.text.x = element_text(angle = 45, hjust = 1), # angle of axis text
+    legend.position = "none"  # removing lengend
+  )
+```
+
+
+---
+
+# Temperature by Spatial Zone
+
+```{r, echo= FALSE}
+ggplot(ctd, aes(x = spatial, y = temp, fill = factor(year), group = interaction(spatial, year))) +
+  geom_boxplot( #boxplot for temp data 
+    linewidth = 0.4, # line size
+    fatten = 1.5, # width size
+    outlier.size = 0.25 # size of outlier dots
+  ) +
+  scale_fill_manual(values = custom_colors) + # using custom colors
+  labs(
+    title = "2015-2022 Spring Bloom Temperature (°C) by Spatial Zone", # changing names of labels
     x = "Spatial Zone",
     y = "Temperature (°C)",
     fill = "Year"
   ) +
-  theme_minimal() +
+  theme_minimal() + # minimal theme
   theme(
-    axis.line = element_line(color = "black"),
-    axis.text.x = element_text(angle = 80, hjust = 1),
-    legend.position = "top"
+    axis.line = element_line(color = "darkgrey"), # axis color to dark grey 
+    axis.text.x = element_text(angle = 80, hjust = 1), # angle of axis text
+    legend.position = "top" # placing lengend on top 
   ) +
   guides(
-    fill = guide_legend(
-      nrow = 1,
+    fill = guide_legend( #selecting how I want the legend on top to be so its just squares
+      nrow = 1, 
       title = "Year",
       override.aes = list(
         linetype = 0,
         linewidth = 0,
-        shape = 22,
-        size = 5
+        shape = 22, # this make rectangles
+        size = 5 # size of rectangle
       )
     )
   )
@@ -94,41 +169,122 @@ ggplot(ctd, aes(x = spatial, y = temp, fill = factor(year), group = interaction(
 
 ```
 
+---
 
-```{r}
+# Temperature by Year
+
+```{r, echo=FALSE}
 ggplot(ctd, aes(x = factor(year), y = temp, fill = spatial, group = interaction(spatial, year))) +
-  geom_boxplot(
-    linewidth = 0.4, 
-    fatten = 1.5, 
-    outlier.size = 0.25
+  geom_boxplot( # selecting boxplot
+    linewidth = 0.4, # line width size
+    fatten = 1.5, # width of box
+    outlier.size = 0.25 # outlier dot size
   ) +
-  scale_fill_manual(values = spat_colors) +  # Apply custom colors for spatial zones
+  scale_fill_manual(values = spat_colors) +  # using custom colors for spatial zones
   labs(
-    title = "2015-2022 Temp (°C) by Spatial Distribution",
+    title = "2015-2022 Spring Bloom Temperature (°C) by Year", # changing label names
     x = "Year",
     y = "Temperature (°C)",
     fill = "Spatial Zone"
   ) +
   theme_minimal() +
   theme(
-    axis.line = element_line(color = "black"),
-    axis.text.x = element_text(angle = 80, hjust = 1),
-    legend.position = "top"
+    axis.line = element_line(color = "darkgrey"), # axis line grey 
+    axis.text.x = element_text(angle = 80, hjust = 1), # changing angle of axis text
+    legend.position = "top" # putting legend on top 
   ) +
   guides(
-    fill = guide_legend(
-      nrow = 1,
+    fill = guide_legend( # making rectangles instead of the box shape
+      nrow = 1, # only one row
       title = "Spatial Zone",
       override.aes = list(
         linetype = 0,
         linewidth = 0,
-        shape = 22,
-        size = 5
+        shape = 22, # this is rectangles
+        size = 5 # size of rectangles 
       )
     )
   )
 
 ```
 
+# Now moving to looking at Chlorophyll α throughout the spatial zones
+- This data is only from the surface to 50m where the most primary production is happening
 
+# Total Chlorophyll α (μg/L) by Spatial Zone
 
+```{r, echo= FALSE}
+ggplot(chl, aes(x = factor(year), y = chltot, fill = spatial, group = interaction(spatial, year))) +
+  geom_boxplot( # selecting boxplot for this data 
+    linewidth = 0.4, #boxplot line witdth
+    fatten = 1.5, # width of boxplot
+    outlier.size = 0.25 # outlier dot size
+  ) +
+  scale_fill_manual(values = spat_colors) +  #  custom colors for spatial zones
+  labs(
+    title = "2015-2022 Chlorophyll α (μg/L) by Spatial Zone", # label names 
+    x = "Year",
+    y = "Chlorophyll α (μg/L)",
+    fill = "Spatial Zone"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "darkgrey"), # axis line color
+    axis.text.x = element_text(angle = 80, hjust = 1), # angle of axis text
+    legend.position = "top" # legend on top
+  ) +
+  guides(
+    fill = guide_legend( # creating rectangles instead of boxplots for legend 
+      nrow = 1,
+      title = "Spatial Zone",
+      override.aes = list(
+        linetype = 0,
+        linewidth = 0,
+        shape = 22, # rectangle shape
+        size = 5 #size of rectangle
+      )
+    )
+  )
+
+```
+
+---
+
+# Integrated Chlorophyll α (mg m²) by Spatial Zone
+
+```{r, echo= FALSE}
+ggplot(intchl, aes(x = year, y = chl_int_total, color = spatial, group = spatial)) + 
+  geom_line(linewidth = 1) +  # changing line width for readability
+  geom_point(size = 3) +  # point size
+  scale_color_manual(values = spat_colors) +  # sustom colors for each spatial zone
+  scale_x_continuous(breaks = seq(min(intchl$year), max(intchl$year), by = 1)) +  # making xaxis ticks for each year
+  labs(
+    title = "2015-2022 Integrated Chlorophyll α (mg m²) by Spatial Zone", # adding title and creating custom titles for labs
+    x = "Year",
+    y = "Int. Chlorophyll α (mg m²)",
+    color = "Spatial Zone"
+  ) +
+  theme_minimal() + # selecting minimal theme
+  theme(
+    axis.line = element_line(color = "darkgrey"), # choosing a black axis lines
+    axis.text.x = element_text(angle = 45, hjust = 1), # axis text lines
+    legend.position = "top" # moving legend to the top 
+  ) +
+  guides(
+    color = guide_legend( # customizing the legend on top
+      nrow = 1, # keeping it one row
+      title = "Spatial Zone",
+      override.aes = list( 
+        linetype = 1, # makes the thicker line
+        shape = 16, # this is a circle
+        size = 5 # bigger size 
+      )
+    )
+  )
+```
+
+---
+
+### Now that we have seem the interannual trends, we can explore the yearly trends with [this Shiny App](https://meg-n-smith.shinyapps.io/NGA_PWS/)
+
+ 

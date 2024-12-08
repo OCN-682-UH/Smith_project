@@ -13,7 +13,7 @@
 
 <meta name="date" content="2024-12-07" />
 
-<title>Final Project</title>
+<title>Final Project: Phase one cleaning</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1479,7 +1479,7 @@ border-radius: 0px;
 
 
 
-<h1 class="title toc-ignore">Final Project</h1>
+<h1 class="title toc-ignore">Final Project: Phase one cleaning</h1>
 <h4 class="author">Megan Smith</h4>
 <h4 class="date">2024-12-07</h4>
 
@@ -1502,7 +1502,8 @@ chl&lt;- read_csv(here(&quot;data&quot;, &quot;CHLfullcleanshareable.csv&quot;))
 intchl&lt;- read_csv(here(&quot;data&quot;,&quot;CHLallIntegratedWide.csv&quot;))</code></pre>
 <pre class="r"><code>summary(ctd)
 summary(chl)
-summary(intchl)</code></pre>
+summary(intchl)
+glimpse(ctd)</code></pre>
 <p>Getting unique station names and ensuring they are the same
 throughout</p>
 <pre class="r"><code>unique(ctd$station)

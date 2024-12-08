@@ -28,15 +28,17 @@ library(here)
 
 # Reading in data
 ```{r}
+
 ctd<- read_csv(here("data","CTDfullcleanshareable.csv" ))
 chl<- read_csv(here("data", "CHLfullcleanshareable.csv"))
 intchl<- read_csv(here("data","CHLallIntegratedWide.csv"))
 ```
 
 ```{r echo= TRUE, results="hide"}
-summary(ctd)
-summary(chl)
-summary(intchl)
+
+glimpse(chl)
+glimpse(intchl)
+glimpse(ctd)
 ```
 Getting unique station names and ensuring they are the same throughout 
 ```{r, echo= TRUE, results= "hide"}
@@ -55,6 +57,16 @@ ctdpro <- ctd %>%
 stations_year <- ctdpro %>% 
   group_by(year) %>% 
   summarise(statyear = list(unique(station))) # making a list of the stations for each year
+library(dplyr)
+
+
+statdepths <- ctdpro %>%
+  group_by(station) %>%        
+  summarize(max_depth = max(depth, na.rm = TRUE))  # getting the maximum 'depth' for each 'station'
+
+
+print(statdepths)
+
 ```
 # Adding a spatial identifier: PWS, inner shelf, middle shelf, outer shelf, and slope
 ```{r}
