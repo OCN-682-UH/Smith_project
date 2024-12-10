@@ -1,0 +1,10 @@
+﻿Data Dictionary for CHLspatialclean,,
+Variable,Data_Type,Description
+year,numeric,Year
+station,character,Station identifier
+stat_name,character,Unique station identifier (Station-Date)
+depth,numeric,Depth of measurement (m)
+chlsml,numeric,Chlorophyll-a <20 um [ugrams/l]
+chllrg,numeric,Chlorophyll-a >20 um [ugrams/l]
+chltot,numeric,Chlorophyll-a Total [ugrams/l]
+spatial,spatial region within the NGA,

@@ -1,0 +1,7 @@
+﻿Data Dictionary for Sample_coordinates.csv,
+Variable,Description
+long,longitude of station
+lat,latitude of station
+stat,station identifier
+location,spatial region within the NGA
+depth,depth in meters of each station

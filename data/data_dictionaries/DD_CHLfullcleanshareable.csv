@@ -1,0 +1,10 @@
+﻿Data Dictionary for CHLfullcleanshareable.csv 0-50m,,
+Variable,Data_Type,Description
+year,numeric,Year
+station,character,Station identifier
+stat_name,character,Unique station identifier (Station-Date)
+depth,numeric,Depth of measurement (m)
+chlsml,numeric,Chlorophyll-a <20 um [ugrams/l]
+chllrg,numeric,Chlorophyll-a >20 um [ugrams/l]
+chltot,numeric,Chlorophyll-a Total [ugrams/l]
+phae,numeric,Phaeopigments [ugrams/l]

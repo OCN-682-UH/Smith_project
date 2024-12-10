@@ -1,0 +1,8 @@
+﻿Data Dictionary for intchlspatialclean.csv,
+Variable,Description
+station,Station identifier
+stat_name,Unique station identifier (Station-Date)
+chlsml_int,Integrated 0-50m chlorophyll-a <20 um [ugrams/l]
+chllrg_int,Integrated 0-50m chlorophyll-a >20 um [ugrams/l]
+chl_int_totalTotal integrated 0-50m chlorophyll-a um [ugrams/l],
+spatial,spatial region with the NGA shelf

@@ -1,0 +1,10 @@
+﻿Data Dictionary for CTDspatialclean.csv,
+Variable,Description
+stat_name,Unique station identifier (Station-Date)
+station,Station identifier
+year,Year
+depth,Depth (m)
+temp,Temperature (°C)
+sal,Salinity (PSU)
+dens,"Density (sigma-t, kg/m^3)"
+spatial ,spatial region within the NGA

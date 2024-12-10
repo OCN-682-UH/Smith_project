@@ -1,0 +1,22 @@
+﻿Data Dictionary for CTDfullcleanshareable.csv,
+Variable,Description
+stat_name,Unique station identifier (Station-Date)
+station,Station identifier
+year,Year
+depth,Depth (m)
+temp,Temperature (°C)
+temp2,Second temperature measurement (°C)
+cond,Conductivity (S/cm)
+cond2,Second conductivity measurement (S/m)
+altm,Altitude (m)
+beamatt,Beam attenuation (1/m)
+beamtran,Beam transmission(%)
+fluor,Fluorescence (mg/m^3)
+oxy,Oxygen concentration (umol/kg)
+oxy2,Second oxygen measurement (umol/kg)
+par,Photosynthetically active radiation
+sal,Salinity (PSU)
+sal2,Second salinity measurement (PSU)
+dens,"Density (sigma-t, kg/m^3)"
+dens2,"Second density measurement (sigma-t, kg/m^3)"
+date,Date of measurement
