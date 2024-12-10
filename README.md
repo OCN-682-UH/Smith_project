@@ -13,7 +13,7 @@ Final project repository
  - [CTD 2018-2022](https://search.dataone.org/view/10.24431%2Frw1k459)
 
 **Folder Descriptions**
-* [data:](https://github.com/OCN-682-UH/Smith_project/tree/main/data)
+* [Data:](https://github.com/OCN-682-UH/Smith_project/tree/main/data)
 * [Data Dictionaries:](https://github.com/OCN-682-UH/Smith_project/tree/main/data/data_dictionaries)
 * [Scripts](https://github.com/OCN-682-UH/Smith_project/tree/main/scripts)
 * [Outputs:](https://github.com/OCN-682-UH/Smith_project/tree/main/output)
